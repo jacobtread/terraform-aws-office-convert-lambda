@@ -1,6 +1,6 @@
 # Role for the office converter lambda
-resource "aws_iam_role" "docbox_office_converter_role" {
-  name = "docbox_office_converter_role"
+resource "aws_iam_role" "lambda" {
+  name = var.lambda_role_name
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -15,8 +15,8 @@ resource "aws_iam_role" "docbox_office_converter_role" {
 }
 
 # Attach the AWSLambdaBasicExecutionRole role policy
-resource "aws_iam_role_policy_attachment" "docbox_office_converter_role_basic_execution" {
-  role       = aws_iam_role.docbox_office_converter_role.name
+resource "aws_iam_role_policy_attachment" "execution" {
+  role       = aws_iam_role.lambda.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
@@ -26,10 +26,11 @@ resource "aws_iam_role_policy_attachment" "docbox_office_converter_role_basic_ex
 # - Upload files
 # - Get files
 # - Delete files
-# This is granted to both the office converter role and the docbox role
-# (Docbox must store input and read output, converter must read, store, and delete)
-resource "aws_iam_policy" "docbox_office_converter_s3_access_policy" {
-  name        = "docbox_office_converter_s3_access_policy"
+#
+# This is granted to the converter lambda but should also be granted to anything
+# you will be converting files with
+resource "aws_iam_policy" "bucket_access" {
+  name        = var.bucket_access_policy_name
   description = "Allows S3 access to the office converter temporary bucket"
 
   policy = jsonencode({
@@ -43,22 +44,21 @@ resource "aws_iam_policy" "docbox_office_converter_s3_access_policy" {
           "s3:DeleteObject"
         ]
         Resource = [
-          "${aws_s3_bucket.docbox_office_converter_bucket.arn}/*"
+          "${aws_s3_bucket.bucket.arn}/*"
         ]
       }
     ]
   })
 }
 
-# Attach the "docbox_sqs_read" policy to the office converter role
-resource "aws_iam_role_policy_attachment" "docbox_office_converter_role_converter_s3_access" {
-  role       = aws_iam_role.docbox_office_converter_role.name
-  policy_arn = aws_iam_policy.docbox_office_converter_s3_access_policy.arn
+resource "aws_iam_role_policy_attachment" "bucket_access" {
+  role       = aws_iam_role.lambda.name
+  policy_arn = aws_iam_policy.bucket_access.arn
 }
 
-# IAM Policy to allow invoking the converter lambda
-resource "aws_iam_policy" "docbox_office_converter_invoke" {
-  name        = "docbox-office-converter-invoke-policy"
+# IAM Policy to allow invoking the converter lambda should be attached to your client
+resource "aws_iam_policy" "invoke" {
+  name        = var.invoke_iam_policy_name
   description = "Allows invoking the office converter lambda"
 
   policy = jsonencode({
