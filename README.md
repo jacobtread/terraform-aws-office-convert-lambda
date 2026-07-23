@@ -4,7 +4,7 @@ This terraform module sets up a AWS Lambda that uses https://github.com/jacobtre
 
 Includes the following created resources:
 
-- Lambda (
+- Lambda
     - Docker image based converter lambda
 - ECR Repository
     - Private, required to host the docker image as lambdas cant be deployed from public images the image is pulled through from the public repository
