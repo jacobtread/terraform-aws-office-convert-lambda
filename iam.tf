@@ -67,7 +67,7 @@ resource "aws_iam_policy" "invoke" {
       {
         Effect   = "Allow"
         Action   = ["lambda:InvokeFunction"]
-        Resource = aws_lambda_function.office_converter.arn
+        Resource = aws_lambda_function.lambda.arn
       }
     ]
   })

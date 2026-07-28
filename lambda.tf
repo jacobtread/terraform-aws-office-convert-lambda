@@ -1,5 +1,5 @@
 # Lambda for performing office file conversions ()
-resource "aws_lambda_function" "office_converter" {
+resource "aws_lambda_function" "lambda" {
   function_name = var.lambda_function_name
   role          = aws_iam_role.lambda.arn
   package_type  = "Image"
