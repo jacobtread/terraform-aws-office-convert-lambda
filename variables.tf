@@ -22,7 +22,7 @@ variable "source_image_tag" {
 
 variable "architecture" {
   type        = string
-  description = "The name of the Lambda function"
+  description = "The architecture of the Lambda function"
   default     = "arm64"
 }
 
